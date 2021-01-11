@@ -5,6 +5,8 @@ The Status of the lib:
 
 Require Fast Adapter version: 5.2.2
 
+ 
+
 How to use this lib in your project:
 ```gradle
 allprojects {
