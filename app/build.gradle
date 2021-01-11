@@ -37,8 +37,5 @@ dependencies {
 
     api "com.mikepenz:fastadapter:${fastadapter}"
     api "com.mikepenz:fastadapter-extensions-diff:${fastadapter}"
-    api "com.mikepenz:fastadapter-extensions-scroll:${fastadapter}"
-    api "com.mikepenz:fastadapter-extensions-ui:${fastadapter}"
-    api "com.mikepenz:fastadapter-extensions-paged:${fastadapter}"
     api "com.mikepenz:fastadapter-extensions-utils:${fastadapter}"
 }
