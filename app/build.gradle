@@ -38,4 +38,5 @@ dependencies {
     api "com.mikepenz:fastadapter:${fastadapter}"
     api "com.mikepenz:fastadapter-extensions-diff:${fastadapter}"
     api "com.mikepenz:fastadapter-extensions-utils:${fastadapter}"
+    api "com.mikepenz:fastadapter-extensions-expandable:${fastadapter}"
 }
