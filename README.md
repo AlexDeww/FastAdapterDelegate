@@ -3,7 +3,7 @@
 The Status of the lib: 
 [![](https://jitpack.io/v/AlexDeww/FastAdapterDelegate.svg)](https://jitpack.io/#AlexDeww/FastAdapterDelegate)
 
-## Require Fast Adapter version: 5.2.2
+## Require Fast Adapter version: 5.3.5
 
 How to use this lib in your project:
 ```gradle
