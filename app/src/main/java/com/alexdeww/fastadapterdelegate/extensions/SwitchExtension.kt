@@ -20,8 +20,9 @@ class SwitchExtension<Item : GenericItem>(
 
         override val clazz: Class<SwitchExtension<*>> = SwitchExtension::class.java
 
-        override fun create(fastAdapter: FastAdapter<out GenericItem>): SwitchExtension<*> =
-            SwitchExtension(fastAdapter)
+        override fun create(
+            fastAdapter: FastAdapter<out GenericItem>
+        ): SwitchExtension<*> = SwitchExtension(fastAdapter)
 
         init {
             ExtensionsFactories.register(this)
