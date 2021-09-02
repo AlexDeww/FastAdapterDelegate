@@ -2,7 +2,7 @@ plugins {
     id 'com.android.library'
     id 'kotlin-android'
     id 'kotlin-android-extensions'
-    id 'com.github.dcendents.android-maven'
+    id 'maven-publish'
 }
 
 android {
@@ -39,4 +39,16 @@ dependencies {
     api "com.mikepenz:fastadapter-extensions-diff:${fastadapter}"
     api "com.mikepenz:fastadapter-extensions-utils:${fastadapter}"
     api "com.mikepenz:fastadapter-extensions-expandable:${fastadapter}"
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+                groupId = 'com.alexdeww.fastadapterdelegate'
+                version = '1.0.5'
+            }
+        }
+    }
 }
