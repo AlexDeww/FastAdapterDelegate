@@ -7,7 +7,7 @@ buildscript {
         sdk_version = 30
 
         kotlin_version = '1.5.30'
-        fastadapter = '5.4.1'
+        fastadapter = '5.5.1'
     }
 
     repositories {

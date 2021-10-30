@@ -60,8 +60,8 @@ class SwitchExtension<Item : GenericItem>(
 
         requestAdapterCacheSizes()
         when (currentSelectedItemPos) {
-            fromPosition -> tryChangeCurrentSelection(toPosition)
-            toPosition -> tryChangeCurrentSelection(fromPosition)
+            fromPosition -> setCurrentSelection(toPosition)
+            toPosition -> setCurrentSelection(fromPosition)
         }
     }
 
@@ -164,15 +164,7 @@ class SwitchExtension<Item : GenericItem>(
         if (currentSelectedItemPos == fixedPosition) return
 
         currentSelectedItemPos = fixedPosition
-        onSelectionChangedListener?.invoke(fixedPosition, getItemByPosition(position))
-    }
-
-    private fun tryChangeCurrentSelection(newPosition: Int) {
-        if (selectedItem?.isSelected == true) {
-            setCurrentSelection(newPosition)
-        } else {
-            resetCurrentSelection()
-        }
+        onSelectionChangedListener?.invoke(fixedPosition, getItemByPosition(fixedPosition))
     }
 
     private fun getItemByPosition(position: Int): Item? = fastAdapter.getItem(position)
