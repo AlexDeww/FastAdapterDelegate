@@ -9,8 +9,7 @@ import com.mikepenz.fastadapter.GenericItem
 import com.mikepenz.fastadapter.IAdapterExtension
 import com.mikepenz.fastadapter.extensions.ExtensionFactory
 import com.mikepenz.fastadapter.extensions.ExtensionsFactories
-import java.lang.reflect.Method
-import kotlin.math.max
+import java.util.*
 
 class SwitchExtension<Item : GenericItem>(
     private val fastAdapter: FastAdapter<Item>
@@ -30,70 +29,58 @@ class SwitchExtension<Item : GenericItem>(
 
     }
 
-    private var currentSelectedItemPos: Int = RecyclerView.NO_POSITION
-    private val adapterCacheSizesMethod: Method by lazy {
-        FastAdapter::class.java
-            .getDeclaredMethod("cacheSizes")
-            .also { it.isAccessible = true }
-    }
+    private var currentSelectionPos: Int = RecyclerView.NO_POSITION
+    private val pendingDeselect = LinkedList<Int>()
 
-    val hasSelection: Boolean get() = currentSelectedItemPos > RecyclerView.NO_POSITION
-    val selectedItemPosition: Int get() = currentSelectedItemPos
-    val selectedItem: Item? get() = getItemByPosition(currentSelectedItemPos)
+    val selectedItemPosition: Int
+        get() {
+            if (currentSelectionPos > RecyclerView.NO_POSITION) return currentSelectionPos
+            (0 until fastAdapter.itemCount).forEach { position ->
+                if (fastAdapter.getItem(position)?.isSelected == true) pendingDeselect.add(position)
+            }
+            currentSelectionPos = pendingDeselect.poll() ?: RecyclerView.NO_POSITION
+            return currentSelectionPos
+        }
+    val hasSelection: Boolean get() = selectedItemPosition > RecyclerView.NO_POSITION
+    val selectedItem: Item? get() = fastAdapter.getItem(selectedItemPosition)
 
     var allowDeselect: Boolean = false
     var notifyItemChanges: Boolean = true
 
-    /**
-     * Событие вызывается когда меняется состояние итема isSelected,
-     * globalPosition - Глобальная позиция заселекченного итема, -1 ничего не выбрано.
-     */
     var onSelectionChangedListener: ((globalPosition: Int, item: Item?) -> Unit)? = null
 
     override fun notifyAdapterDataSetChanged() {
-        requestAdapterCacheSizes()
-        onItemRangeChanged(0, fastAdapter.itemCount)
+        currentSelectionPos = RecyclerView.NO_POSITION
     }
 
     override fun notifyAdapterItemMoved(fromPosition: Int, toPosition: Int) {
-        if (!hasSelection) return
-
-        requestAdapterCacheSizes()
-        when (currentSelectedItemPos) {
-            fromPosition -> setCurrentSelection(toPosition)
-            toPosition -> setCurrentSelection(fromPosition)
-        }
+        notifyAdapterDataSetChanged()
     }
 
     override fun notifyAdapterItemRangeChanged(position: Int, itemCount: Int, payload: Any?) {
-        requestAdapterCacheSizes()
-        onItemRangeChanged(position, itemCount)
+        notifyAdapterDataSetChanged()
     }
 
     override fun notifyAdapterItemRangeInserted(position: Int, itemCount: Int) {
-        requestAdapterCacheSizes()
-        onItemRangeChanged(position, itemCount)
+        notifyAdapterDataSetChanged()
     }
 
     override fun notifyAdapterItemRangeRemoved(position: Int, itemCount: Int) {
-        requestAdapterCacheSizes()
-        when {
-            currentSelectedItemPos < position -> return
-            currentSelectedItemPos in position.until(position + itemCount) -> resetCurrentSelection()
-            else -> setCurrentSelection(currentSelectedItemPos - itemCount)
-        }
+        notifyAdapterDataSetChanged()
     }
 
     override fun onClick(v: View, pos: Int, fastAdapter: FastAdapter<Item>, item: Item): Boolean {
         if (!item.isSelectable) return false
 
         if (!item.isSelected) {
-            if (pos != currentSelectedItemPos) deselectCurrent()
+            if (hasSelection && pos != selectedItemPosition) deselectCurrent()
             changeItemSelection(item, pos, true)
-            setCurrentSelection(pos)
+            currentSelectionPos = pos
+            onSelectionChangedListener?.invoke(pos, item)
         } else if (item.isSelected && allowDeselect) {
             changeItemSelection(item, pos, false)
-            resetCurrentSelection()
+            currentSelectionPos = RecyclerView.NO_POSITION
+            onSelectionChangedListener?.invoke(RecyclerView.NO_POSITION, null)
         }
 
         return false
@@ -122,30 +109,13 @@ class SwitchExtension<Item : GenericItem>(
 
     override fun withSavedInstanceState(savedInstanceState: Bundle?, prefix: String) {}
 
-    private fun onItemRangeChanged(position: Int, itemCount: Int) {
-        var foundSelection = hasSelection && selectedItem?.isSelected == true
-
-        position
-            .until(position + itemCount)
-            .asSequence()
-            .mapNotNull { pos -> getItemByPosition(pos)?.to(pos) }
-            .filter { (item, pos) -> item.isSelected && pos != currentSelectedItemPos }
-            .forEach { (item, pos) ->
-                if (!foundSelection) {
-                    setCurrentSelection(pos)
-                    foundSelection = true
-                } else {
-                    changeItemSelection(item, pos, false)
-                }
-            }
-
-        if (!foundSelection) resetCurrentSelection()
-    }
-
     private fun deselectCurrent() {
-        if (!hasSelection) return
-
-        selectedItem?.let { changeItemSelection(it, currentSelectedItemPos, false) }
+        while (pendingDeselect.isNotEmpty()) {
+            val pos = pendingDeselect.pop()
+            val item = fastAdapter.getItem(pos) ?: continue
+            changeItemSelection(item, pos, false)
+        }
+        selectedItem?.let { changeItemSelection(it, currentSelectionPos, false) }
     }
 
     private fun changeItemSelection(item: Item, position: Int, isSelected: Boolean) {
@@ -153,24 +123,6 @@ class SwitchExtension<Item : GenericItem>(
 
         item.isSelected = isSelected
         if (notifyItemChanges) fastAdapter.notifyItemChanged(position, Unit)
-    }
-
-    private fun resetCurrentSelection() {
-        setCurrentSelection(RecyclerView.NO_POSITION)
-    }
-
-    private fun setCurrentSelection(position: Int) {
-        val fixedPosition = max(position, RecyclerView.NO_POSITION)
-        if (currentSelectedItemPos == fixedPosition) return
-
-        currentSelectedItemPos = fixedPosition
-        onSelectionChangedListener?.invoke(fixedPosition, getItemByPosition(fixedPosition))
-    }
-
-    private fun getItemByPosition(position: Int): Item? = fastAdapter.getItem(position)
-
-    private fun requestAdapterCacheSizes() {
-        runCatching { adapterCacheSizesMethod.invoke(fastAdapter) }
     }
 
 }
