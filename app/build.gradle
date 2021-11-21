@@ -45,7 +45,7 @@ afterEvaluate {
             release(MavenPublication) {
                 from components.release
                 groupId = 'com.alexdeww.fastadapterdelegate'
-                version = '1.0.7'
+                version = '1.0.9'
             }
         }
     }
