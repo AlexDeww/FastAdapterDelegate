@@ -33,8 +33,6 @@ android {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-
     api "com.mikepenz:fastadapter:${fastadapter}"
     api "com.mikepenz:fastadapter-extensions-diff:${fastadapter}"
     api "com.mikepenz:fastadapter-extensions-utils:${fastadapter}"
@@ -47,7 +45,7 @@ afterEvaluate {
             release(MavenPublication) {
                 from components.release
                 groupId = 'com.alexdeww.fastadapterdelegate'
-                version = '1.0.6'
+                version = '1.0.7'
             }
         }
     }
