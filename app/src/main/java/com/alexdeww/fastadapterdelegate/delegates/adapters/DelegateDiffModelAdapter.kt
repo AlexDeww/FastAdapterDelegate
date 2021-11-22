@@ -3,7 +3,7 @@ package com.alexdeww.fastadapterdelegate.delegates.adapters
 import androidx.recyclerview.widget.DiffUtil
 import com.alexdeww.fastadapterdelegate.adapters.DiffModelAdapter
 import com.alexdeww.fastadapterdelegate.delegates.ModelItemDelegate
-import com.alexdeww.fastadapterdelegate.delegates.item.common.GenericDelegateModelItem
+import com.alexdeww.fastadapterdelegate.delegates.item.common.GenericDelegationModelItem
 import com.alexdeww.fastadapterdelegate.wrappers.ModelItemDiffCallbackWrapper
 
 /**
@@ -17,7 +17,7 @@ import com.alexdeww.fastadapterdelegate.wrappers.ModelItemDiffCallbackWrapper
 open class DelegateDiffModelAdapter<Model : BaseModel, BaseModel : Any>(
     protected val delegates: List<ModelItemDelegate<BaseModel>>,
     diffCallback: DiffUtil.ItemCallback<BaseModel>
-) : DiffModelAdapter<Model, GenericDelegateModelItem<BaseModel>>(
+) : DiffModelAdapter<Model, GenericDelegationModelItem<BaseModel>>(
     ModelItemDiffCallbackWrapper(diffCallback),
     { model -> delegates.find { it.isForViewType(model) }?.intercept(model, delegates) }
 )

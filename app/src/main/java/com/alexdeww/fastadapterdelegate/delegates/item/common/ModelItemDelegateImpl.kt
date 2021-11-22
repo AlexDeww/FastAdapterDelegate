@@ -3,6 +3,7 @@ package com.alexdeww.fastadapterdelegate.delegates.item.common
 import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
 import com.alexdeww.fastadapterdelegate.delegates.ModelItemDelegate
+import com.alexdeww.fastadapterdelegate.delegates.item.common.AbsDelegationModelItem.ViewHolder
 
 /**
  * Базовый делегат, для всех текущих и будущих делегатов.
@@ -19,14 +20,14 @@ import com.alexdeww.fastadapterdelegate.delegates.ModelItemDelegate
  * @param initializeBlock Блок инициализации, в нем задаются методы bind/unbind, вызывается
  * сразу после [interceptItem]
  */
-class DelegateModelItemDelegateImpl<M : BM, BM, I : GenericDelegateModelItem<M>>(
+class ModelItemDelegateImpl<M : BM, BM, I : AbsDelegationModelItem<M, I, VH>, VH>(
     @LayoutRes private val layoutId: Int,
     @IdRes private val type: Int,
     private val on: (model: BM) -> Boolean,
     private val interceptItem: (model: M, delegates: List<ModelItemDelegate<BM>>) -> I,
     private val initItem: (I.() -> Unit)? = null,
-    private val initializeBlock: DelegateModelItemViewHolder<M, I>.() -> Unit
-) : ModelItemDelegate<BM> {
+    private val initializeBlock: VH.() -> Unit
+) : ModelItemDelegate<BM> where VH : ViewHolder<M, I> {
 
     override fun isForViewType(model: BM): Boolean = on.invoke(model)
 
@@ -34,13 +35,12 @@ class DelegateModelItemDelegateImpl<M : BM, BM, I : GenericDelegateModelItem<M>>
     override fun intercept(
         model: BM,
         delegates: List<ModelItemDelegate<BM>>
-    ): GenericDelegateModelItem<BM> = interceptItem.invoke(model as M, delegates)
+    ): GenericDelegationModelItem<BM> = interceptItem
+        .invoke(model as M, delegates)
         .also { modelItem ->
-            modelItem.setParams(layoutId, type) {
-                initializeBlock.invoke(this as DelegateModelItemViewHolder<M, I>)
-            }
+            modelItem.setParams(layoutId, type, initializeBlock)
             initItem?.invoke(modelItem)
-        } as GenericDelegateModelItem<BM>
+        }
 
 }
 
@@ -57,19 +57,19 @@ class DelegateModelItemDelegateImpl<M : BM, BM, I : GenericDelegateModelItem<M>>
  * @param initItem Инициализация итема, вызывается сразу после [initializeBlock]
  * @param initializeBlock Блок инициализации, в нем задаются методы bind/unbind, вызывается
  */
-inline fun <reified M : BM, BM, I : GenericDelegateModelItem<M>> customModeItemDelegateEx(
+inline fun <reified M : BM, BM, I : AbsDelegationModelItem<M, I, VH>, VH> customModeItemDelegateEx(
     @LayoutRes layoutId: Int,
     @IdRes type: Int,
     noinline interceptItem: (model: M, delegates: List<ModelItemDelegate<BM>>) -> I,
     noinline initItem: (I.() -> Unit)? = null,
-    noinline initializeBlock: DelegateModelItemViewHolder<M, I>.() -> Unit
-): ModelItemDelegate<BM> = DelegateModelItemDelegateImpl(
-    layoutId,
-    type,
-    { model: BM -> model is M },
-    interceptItem,
-    initItem,
-    initializeBlock
+    noinline initializeBlock: VH.() -> Unit
+): ModelItemDelegate<BM> where VH : ViewHolder<M, I> = ModelItemDelegateImpl(
+    layoutId = layoutId,
+    type = type,
+    on = { model: BM -> model is M },
+    interceptItem = interceptItem,
+    initItem = initItem,
+    initializeBlock = initializeBlock
 )
 
 /**
@@ -84,16 +84,16 @@ inline fun <reified M : BM, BM, I : GenericDelegateModelItem<M>> customModeItemD
  * @param initItem Инициализация элемента, вызывается сразу после [initializeBlock]
  * @param initializeBlock Блок инициализации, в нем задаются методы bind/unbind, вызывается
  */
-inline fun <reified M, I : GenericDelegateModelItem<M>> customModeItemDelegate(
+inline fun <reified M, I : AbsDelegationModelItem<M, I, VH>, VH> customModeItemDelegate(
     @LayoutRes layoutId: Int,
     @IdRes type: Int,
     noinline interceptItem: (model: M, delegates: List<ModelItemDelegate<M>>) -> I,
     noinline initItem: (I.() -> Unit)? = null,
-    noinline initializeBlock: DelegateModelItemViewHolder<M, I>.() -> Unit
-): ModelItemDelegate<M> = customModeItemDelegateEx(
-    layoutId,
-    type,
-    interceptItem,
-    initItem,
-    initializeBlock
+    noinline initializeBlock: VH.() -> Unit
+): ModelItemDelegate<M> where VH : ViewHolder<M, I> = customModeItemDelegateEx(
+    layoutId = layoutId,
+    type = type,
+    interceptItem = interceptItem,
+    initItem = initItem,
+    initializeBlock = initializeBlock
 )

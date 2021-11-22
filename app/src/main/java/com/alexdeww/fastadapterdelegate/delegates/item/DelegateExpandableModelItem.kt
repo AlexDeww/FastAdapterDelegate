@@ -2,63 +2,38 @@ package com.alexdeww.fastadapterdelegate.delegates.item
 
 import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
-import androidx.recyclerview.widget.RecyclerView
-import com.mikepenz.fastadapter.IExpandable
-import com.mikepenz.fastadapter.ISubItem
-import com.mikepenz.fastadapter.MutableSubItemList
-import com.mikepenz.fastadapter.items.ModelAbstractItem
 import com.alexdeww.fastadapterdelegate.delegates.ModelItemDelegate
-import com.alexdeww.fastadapterdelegate.delegates.item.common.DelegateModelAbstractItem
-import com.alexdeww.fastadapterdelegate.delegates.item.common.DelegateModelItemViewHolder
+import com.alexdeww.fastadapterdelegate.delegates.item.expandable.AbsDelegationExpandableModelItem
+import com.alexdeww.fastadapterdelegate.delegates.item.common.AbsDelegationModelItem
 import com.alexdeww.fastadapterdelegate.delegates.item.common.customModeItemDelegateEx
-
-typealias GenericExpandableModelItem<M> = DelegateExpandableModelAbstractItem<M, *>
-
-abstract class DelegateExpandableModelAbstractItem<M, I : ModelAbstractItem<M, *>>(
-    model: M,
-    override val isAutoExpanding: Boolean = true
-) : DelegateModelAbstractItem<M, I>(model), IExpandable<RecyclerView.ViewHolder> {
-    override var isExpanded: Boolean = false
-
-    @Suppress("LeakingThis")
-    override var subItems: MutableList<ISubItem<*>> = MutableSubItemList(this)
-
-    @Suppress("UNUSED_PARAMETER")
-    override var isSelectable: Boolean
-        get() = subItems.isEmpty()
-        set(value) {}
-}
-
-class DelegateExpandableModelItem<M>(
-    model: M,
-    isAutoExpanding: Boolean = true
-) : DelegateExpandableModelAbstractItem<M, DelegateExpandableModelItem<M>>(model, isAutoExpanding)
+import com.alexdeww.fastadapterdelegate.delegates.item.layoutcontainer.LayoutContainerExpandableModelItem
+import com.alexdeww.fastadapterdelegate.delegates.item.layoutcontainer.LayoutContainerExpandableModelItemVH
 
 @Suppress("LongParameterList")
-inline fun <reified M : BM, BM, I : GenericExpandableModelItem<M>> expandableModelItemDelegateEx(
+inline fun <reified M : BM, BM, I : AbsDelegationExpandableModelItem<M, I, VH>, VH> customExpandableModelItemDelegateEx(
     @LayoutRes layoutId: Int,
     @IdRes type: Int,
     noinline interceptItem: (model: M, delegates: List<ModelItemDelegate<BM>>) -> I,
     noinline initSubItems: M.() -> List<BM> = { emptyList() },
     noinline initItem: (I.() -> Unit)? = null,
-    noinline initializeBlock: DelegateModelItemViewHolder<M, I>.() -> Unit
-): ModelItemDelegate<BM> = customModeItemDelegateEx(
-    layoutId,
-    type,
-    { model, delegates ->
-        interceptItem.invoke(model, delegates).also {
-            val subItems = initSubItems.invoke(it.model)
-                .mapNotNull { m ->
+    noinline initializeBlock: VH.() -> Unit
+): ModelItemDelegate<BM> where VH : AbsDelegationModelItem.ViewHolder<M, I> =
+    customModeItemDelegateEx<M, BM, I, VH>(
+        layoutId = layoutId,
+        type = type,
+        interceptItem = { model, delegates ->
+            interceptItem.invoke(model, delegates).also {
+                val subItems = initSubItems.invoke(it.model).mapNotNull { subModel ->
                     delegates
-                        .find { delegate -> delegate.isForViewType(m) }
-                        ?.intercept(m, delegates)
+                        .find { delegate -> delegate.isForViewType(subModel) }
+                        ?.intercept(subModel, delegates)
                 }
-            it.subItems.addAll(subItems)
-        }
-    },
-    initItem,
-    initializeBlock
-)
+                it.subItems.addAll(subItems)
+            }
+        },
+        initItem = initItem,
+        initializeBlock = initializeBlock
+    )
 
 /**
  * Создает делегат для расскрывающегося элемента списка.
@@ -71,13 +46,13 @@ inline fun <reified M : BM, BM> expandableModelItemDelegate(
     @IdRes type: Int,
     isAutoExpanding: Boolean = true,
     noinline initSubItems: M.() -> List<BM> = { emptyList() },
-    noinline initItem: (DelegateExpandableModelItem<M>.() -> Unit)? = null,
-    noinline initializeBlock: DelegateModelItemViewHolder<M, DelegateExpandableModelItem<M>>.() -> Unit
-) = expandableModelItemDelegateEx(
-    layoutId,
-    type,
-    { model, _ -> DelegateExpandableModelItem(model, isAutoExpanding) },
-    initSubItems,
-    initItem,
-    initializeBlock
+    noinline initItem: (LayoutContainerExpandableModelItem<M>.() -> Unit)? = null,
+    noinline initializeBlock: LayoutContainerExpandableModelItemVH<M>.() -> Unit
+) = customExpandableModelItemDelegateEx(
+    layoutId = layoutId,
+    type = type,
+    interceptItem = { model, _ -> LayoutContainerExpandableModelItem(model, isAutoExpanding) },
+    initSubItems = initSubItems,
+    initItem = initItem,
+    initializeBlock = initializeBlock
 )

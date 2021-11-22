@@ -1,6 +1,6 @@
 package com.alexdeww.fastadapterdelegate.delegates
 
-import com.alexdeww.fastadapterdelegate.delegates.item.common.GenericDelegateModelItem
+import com.alexdeww.fastadapterdelegate.delegates.item.common.GenericDelegationModelItem
 
 /**
  * @param M Тип данных модели.
@@ -27,6 +27,6 @@ interface ModelItemDelegate<M> {
     fun intercept(
         model: M,
         delegates: List<ModelItemDelegate<M>>
-    ): GenericDelegateModelItem<M>
+    ): GenericDelegationModelItem<M>
 
 }

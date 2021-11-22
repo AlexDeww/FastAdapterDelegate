@@ -1,18 +1,18 @@
 package com.alexdeww.fastadapterdelegate.delegates
 
 import com.mikepenz.fastadapter.GenericItem
-import com.alexdeww.fastadapterdelegate.delegates.item.common.GenericDelegateModelItem
+import com.alexdeww.fastadapterdelegate.delegates.item.common.GenericDelegationModelItem
 
 /**
- * Получить из элемента [GenericItem] -> элемент [GenericDelegateModelItem]
+ * Получить из элемента [GenericItem] -> элемент [GenericDelegationModelItem]
  *
  * @param M Тип модели элемента.
  *
- * @return [GenericDelegateModelItem] если удалось преобразовать, иначе null
+ * @return [GenericDelegationModelItem] если удалось преобразовать, иначе null
  */
 @Suppress("UNCHECKED_CAST")
-fun <M> GenericItem.asModelItem(): GenericDelegateModelItem<M>? =
-    (this as? GenericDelegateModelItem<M>)
+fun <M> GenericItem.asModelItem(): GenericDelegationModelItem<M>? =
+    (this as? GenericDelegationModelItem<M>)
 
 /**
  * Получить из элемента [GenericItem] -> элемент [I]
@@ -22,7 +22,7 @@ fun <M> GenericItem.asModelItem(): GenericDelegateModelItem<M>? =
  * @return [I] если удалось преобразовать, иначе null
  */
 @Suppress("UNCHECKED_CAST")
-fun <I : GenericDelegateModelItem<*>> GenericItem.asTypedModelItem(): I? = (this as? I)
+fun <I : GenericDelegationModelItem<*>> GenericItem.asTypedModelItem(): I? = (this as? I)
 
 /**
  * Получить из элемента [GenericItem] -> модель [M]
@@ -32,7 +32,7 @@ fun <I : GenericDelegateModelItem<*>> GenericItem.asTypedModelItem(): I? = (this
  * @return [M] если удалось преобразовать, иначе null
  */
 @Suppress("UNCHECKED_CAST")
-inline fun <reified M> GenericItem.asModel(): M? = (this as? GenericDelegateModelItem<*>)?.let {
+inline fun <reified M> GenericItem.asModel(): M? = (this as? GenericDelegationModelItem<*>)?.let {
     if (it.model is M) it.model as M else null
 }
 
@@ -46,4 +46,4 @@ fun GenericItem.asAnyModel(): Any? = asModel<Any>()
  * @return true является, иначе false
  */
 inline fun <reified M> GenericItem.isModelItem(): Boolean =
-    (this is GenericDelegateModelItem<*> && this.model is M)
+    (this is GenericDelegationModelItem<*> && this.model is M)

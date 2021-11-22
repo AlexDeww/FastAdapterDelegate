@@ -4,7 +4,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.mikepenz.fastadapter.IModelItem
 
-class ModelItemDiffCallbackWrapper<M : Any, I : IModelItem<M, out RecyclerView.ViewHolder>>(
+class ModelItemDiffCallbackWrapper<M : Any, I : IModelItem<out M, out RecyclerView.ViewHolder>>(
     private val itemDiffCallback: DiffUtil.ItemCallback<M>
 ) : DiffUtil.ItemCallback<I>() {
 

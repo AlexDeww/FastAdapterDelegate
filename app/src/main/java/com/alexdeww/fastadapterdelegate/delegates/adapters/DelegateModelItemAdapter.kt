@@ -2,7 +2,7 @@ package com.alexdeww.fastadapterdelegate.delegates.adapters
 
 import com.mikepenz.fastadapter.adapters.ModelAdapter
 import com.alexdeww.fastadapterdelegate.delegates.ModelItemDelegate
-import com.alexdeww.fastadapterdelegate.delegates.item.common.GenericDelegateModelItem
+import com.alexdeww.fastadapterdelegate.delegates.item.common.GenericDelegationModelItem
 
 /**
  * Адаптер.
@@ -13,7 +13,7 @@ import com.alexdeww.fastadapterdelegate.delegates.item.common.GenericDelegateMod
  */
 open class DelegateModelItemAdapter<Model : BaseModel, BaseModel>(
     protected val delegates: List<ModelItemDelegate<BaseModel>>
-) : ModelAdapter<BaseModel, GenericDelegateModelItem<BaseModel>>(
+) : ModelAdapter<BaseModel, GenericDelegationModelItem<BaseModel>>(
     { model -> delegates.find { it.isForViewType(model) }?.intercept(model, delegates) }
 )
 
