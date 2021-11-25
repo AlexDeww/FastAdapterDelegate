@@ -30,6 +30,9 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    buildFeatures {
+        viewBinding true
+    }
 }
 
 dependencies {
@@ -45,7 +48,7 @@ afterEvaluate {
             release(MavenPublication) {
                 from components.release
                 groupId = 'com.alexdeww.fastadapterdelegate'
-                version = '1.0.9'
+                version = '2.0.0'
             }
         }
     }

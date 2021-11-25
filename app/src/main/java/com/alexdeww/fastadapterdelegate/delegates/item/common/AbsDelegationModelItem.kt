@@ -3,8 +3,7 @@ package com.alexdeww.fastadapterdelegate.delegates.item.common
 import android.content.Context
 import android.content.res.Resources
 import android.view.View
-import android.view.ViewGroup
-import androidx.annotation.LayoutRes
+import androidx.recyclerview.widget.RecyclerView
 import com.alexdeww.fastadapterdelegate.delegates.item.common.AbsDelegationModelItem.ViewHolder
 import com.mikepenz.fastadapter.*
 import com.mikepenz.fastadapter.items.BaseItem
@@ -16,40 +15,52 @@ typealias GenericDelegationModelItem<M> = AbsDelegationModelItem<out M, *, out V
 
 abstract class AbsDelegationModelItem<M, I, VH>(
     final override var model: M
-) : BaseItem<VH>(), IModelItem<M, VH>, IItemVHFactory<VH>, ISubItem<VH>, IClickable<I>,
-    ModelItemVHFactory<VH> where I : AbsDelegationModelItem<M, I, VH>,
-                                 VH : ViewHolder<M, I> {
+) : BaseItem<VH>(), IModelItem<M, VH>, ISubItem<VH>,
+    IClickable<I> where I : AbsDelegationModelItem<M, I, VH>,
+                        VH : ViewHolder<M, I> {
 
-    protected lateinit var bindBlock: VH.() -> Unit
-    private var _layoutRes: Int = -1
-    private var _type: Int = -1
+    internal lateinit var viewHolderFactory: IItemVHFactory<VH>
+    final override var type: Int = -1
+        internal set
 
-    @get:LayoutRes
-    val layoutRes: Int
-        get() = _layoutRes
-    final override val type: Int get() = _type
     final override var parent: IParentItem<*>? = null
     final override var onItemClickListener: ClickListener<I>? = null
     final override var onPreItemClickListener: ClickListener<I>? = null
+    final override val factory: IItemVHFactory<VH> get() = viewHolderFactory
 
-    final override fun getViewHolder(parent: ViewGroup): VH =
-        getViewHolder(parent, layoutRes).apply(bindBlock)
-
-    internal fun setParams(layoutRes: Int, type: Int, bindBlock: VH.() -> Unit) {
-        _layoutRes = layoutRes
-        _type = type
-        this.bindBlock = bindBlock
+    final override fun attachToWindow(holder: VH) {
+        super.attachToWindow(holder)
     }
 
-    abstract class ViewHolder<M, I : AbsDelegationModelItem<M, *, *>>(
-        itemView: View
-    ) : FastAdapter.ViewHolder<I>(itemView) {
+    final override fun bindView(holder: VH, payloads: List<Any>) {
+        super.bindView(holder, payloads)
+        holder._item = this
+        holder.bindAction?.invoke(payloads)
+    }
+
+    final override fun detachFromWindow(holder: VH) {
+        super.detachFromWindow(holder)
+    }
+
+    final override fun failedToRecycle(holder: VH): Boolean {
+        return super.failedToRecycle(holder)
+    }
+
+    final override fun unbindView(holder: VH) {
+        holder.unBindAction?.invoke()
+        super.unbindView(holder)
+    }
+
+    abstract class ViewHolder<M, I>(itemView: View) : RecyclerView.ViewHolder(itemView)
+            where I : AbsDelegationModelItem<M, *, *> {
 
         private object Uninitialized
 
-        private var _item: Any = Uninitialized
-        private var bindAction: BindBlockAction? = null
-        private var unBindAction: UnbindBlockAction? = null
+        internal var _item: Any = Uninitialized
+        internal var bindAction: BindBlockAction? = null
+            private set
+        internal var unBindAction: UnbindBlockAction? = null
+            private set
 
         @Suppress("UNCHECKED_CAST")
         val item: I
@@ -61,23 +72,14 @@ abstract class AbsDelegationModelItem<M, I, VH>(
         val context: Context get() = itemView.context
         val resources: Resources get() = context.resources
 
-        override fun bindView(item: I, payloads: List<Any>) {
-            _item = item
-            this.bindAction?.invoke(payloads)
-        }
-
-        override fun unbindView(item: I) {
-            unBindAction?.invoke()
-        }
-
-        fun bind(bindingBlock: (payloads: List<Any>) -> Unit) {
+        fun bind(block: (payloads: List<Any>) -> Unit) {
             check(bindAction == null) { "bind { ... } is already defined." }
-            bindAction = bindingBlock
+            bindAction = block
         }
 
-        fun unbind(unBindBlock: () -> Unit) {
+        fun unbind(block: () -> Unit) {
             check(unBindAction == null) { "unbind { ... } is already defined." }
-            unBindAction = unBindBlock
+            unBindAction = block
         }
 
     }

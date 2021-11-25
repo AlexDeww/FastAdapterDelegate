@@ -1,8 +1,8 @@
 package com.alexdeww.fastadapterdelegate.delegates.adapters
 
-import com.mikepenz.fastadapter.adapters.ModelAdapter
 import com.alexdeww.fastadapterdelegate.delegates.ModelItemDelegate
 import com.alexdeww.fastadapterdelegate.delegates.item.common.GenericDelegationModelItem
+import com.mikepenz.fastadapter.adapters.ModelAdapter
 
 /**
  * Адаптер.
@@ -11,7 +11,7 @@ import com.alexdeww.fastadapterdelegate.delegates.item.common.GenericDelegationM
  * @param BaseModel тип элементов которые может отображать этот адаптер
  * @param delegates список делегатов
  */
-open class DelegateModelItemAdapter<Model : BaseModel, BaseModel>(
+open class DelegationModelItemAdapter<Model : BaseModel, BaseModel>(
     protected val delegates: List<ModelItemDelegate<BaseModel>>
 ) : ModelAdapter<BaseModel, GenericDelegationModelItem<BaseModel>>(
     { model -> delegates.find { it.isForViewType(model) }?.intercept(model, delegates) }
@@ -20,20 +20,20 @@ open class DelegateModelItemAdapter<Model : BaseModel, BaseModel>(
 /**
  * Адаптер.
  *
- * @param BaseModel Базовый тип элементов которые может хранить этот адаптер
+ * @param Model тип элементов которые может хранить этот адаптер
+ * @param BaseModel тип элементов которые может отображать этот адаптер
  * @param delegates список делегатов
  */
-fun <BaseModel> delegateModelItemAdapter(
+fun <Model : BaseModel, BaseModel> delegationModelItemAdapter(
     vararg delegates: ModelItemDelegate<BaseModel>
-) = DelegateModelItemAdapter(delegates.asList())
+) = DelegationModelItemAdapter<Model, BaseModel>(delegates.asList())
 
 /**
  * Адаптер.
  *
  * @param Model тип элементов которые может хранить этот адаптер
- * @param BaseModel тип элементов которые может отображать этот адаптер
  * @param delegates список делегатов
  */
-fun <Model : BaseModel, BaseModel> delegateModelItemAdapterEx(
-    vararg delegates: ModelItemDelegate<BaseModel>
-) = DelegateModelItemAdapter<Model, BaseModel>(delegates.asList())
+fun <Model> delegationModelItemAdapterSimple(
+    vararg delegates: ModelItemDelegate<Model>
+) = delegationModelItemAdapter(*delegates)

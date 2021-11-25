@@ -14,7 +14,7 @@ import com.alexdeww.fastadapterdelegate.wrappers.ModelItemDiffCallbackWrapper
  * @param delegates список делегатов
  * @param diffCallback diffUtilItemCallback()
  */
-open class DelegateDiffModelAdapter<Model : BaseModel, BaseModel : Any>(
+open class DelegationDiffModelAdapter<Model : BaseModel, BaseModel : Any>(
     protected val delegates: List<ModelItemDelegate<BaseModel>>,
     diffCallback: DiffUtil.ItemCallback<BaseModel>
 ) : DiffModelAdapter<Model, GenericDelegationModelItem<BaseModel>>(
@@ -25,24 +25,24 @@ open class DelegateDiffModelAdapter<Model : BaseModel, BaseModel : Any>(
 /**
  * Адаптер.
  *
- * @param BaseModel Базовый тип элементов которые может хранить этот адаптер
- * @param delegates список делегатов
- * @param diffCallback diffUtilItemCallback()
- */
-fun <BaseModel : Any> delegateDiffModelAdapter(
-    diffCallback: DiffUtil.ItemCallback<BaseModel>,
-    vararg delegates: ModelItemDelegate<BaseModel>
-) = DelegateDiffModelAdapter(delegates.asList(), diffCallback)
-
-/**
- * Адаптер.
- *
  * @param Model тип элементов которые может хранить этот адаптер
  * @param BaseModel тип элементов которые может отображать этот адаптер
  * @param delegates список делегатов
  * @param diffCallback diffUtilItemCallback()
  */
-fun <Model : BaseModel, BaseModel : Any> delegateDiffModelAdapterEx(
+fun <Model : BaseModel, BaseModel : Any> delegationDiffModelAdapter(
     diffCallback: DiffUtil.ItemCallback<BaseModel>,
     vararg delegates: ModelItemDelegate<BaseModel>
-) = DelegateDiffModelAdapter<Model, BaseModel>(delegates.asList(), diffCallback)
+) = DelegationDiffModelAdapter<Model, BaseModel>(delegates.asList(), diffCallback)
+
+/**
+ * Адаптер.
+ *
+ * @param Model тип элементов которые может хранить этот адаптер
+ * @param delegates список делегатов
+ * @param diffCallback diffUtilItemCallback()
+ */
+fun <Model : Any> delegationDiffModelAdapterSimple(
+    diffCallback: DiffUtil.ItemCallback<Model>,
+    vararg delegates: ModelItemDelegate<Model>
+) = delegationDiffModelAdapter(diffCallback, *delegates)
