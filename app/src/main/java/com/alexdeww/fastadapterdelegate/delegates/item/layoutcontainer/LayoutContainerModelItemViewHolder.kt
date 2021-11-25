@@ -25,7 +25,7 @@ interface LayoutContainerModelItemVHCreator<M, I> :
 
 }
 
-@ContainerOptions(cache = CacheImplementation.SPARSE_ARRAY)
+@ContainerOptions(cache = CacheImplementation.HASH_MAP)
 class LayoutContainerModelItemViewHolder<M, I : AbsDelegationModelItem<M, *, *>>(
     override val containerView: View
 ) : AbsDelegationModelItem.ViewHolder<M, I>(containerView), LayoutContainer {
