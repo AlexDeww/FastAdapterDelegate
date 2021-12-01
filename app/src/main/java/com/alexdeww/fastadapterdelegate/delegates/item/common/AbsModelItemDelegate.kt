@@ -25,7 +25,7 @@ abstract class AbsModelItemDelegate<M : BM, BM, I, VH>(
     private val itemInitializer: (I.() -> Unit)? = null,
     private val delegateInitializer: VH.() -> Unit
 ) : ModelItemDelegate<BM>, IItemVHFactory<VH>,
-    ModelItemVHCreator<VH> where I : AbsDelegationModelItem<M, I, VH>,
+    ModelItemVHCreator<VH> where I : AbsDelegationModelItem<M, I>,
                                  VH : ViewHolder<M, I> {
 
     final override fun isForViewType(model: BM): Boolean = on.invoke(model)

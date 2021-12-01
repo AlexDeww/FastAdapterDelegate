@@ -13,7 +13,7 @@ import kotlinx.android.extensions.LayoutContainer
 
 interface LayoutContainerModelItemVHCreator<M, I> :
     ModelItemVHCreator<LayoutContainerModelItemViewHolder<M, I>>
-        where I : AbsDelegationModelItem<M, I, LayoutContainerModelItemViewHolder<M, I>> {
+        where I : AbsDelegationModelItem<M, I> {
 
     val layoutId: Int
 
@@ -26,7 +26,7 @@ interface LayoutContainerModelItemVHCreator<M, I> :
 }
 
 @ContainerOptions(cache = CacheImplementation.SPARSE_ARRAY)
-class LayoutContainerModelItemViewHolder<M, I : AbsDelegationModelItem<M, *, *>>(
+class LayoutContainerModelItemViewHolder<M, I : AbsDelegationModelItem<M, *>>(
     override val containerView: View
 ) : AbsDelegationModelItem.ViewHolder<M, I>(containerView), LayoutContainer {
 

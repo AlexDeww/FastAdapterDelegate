@@ -5,11 +5,10 @@ import com.mikepenz.fastadapter.IExpandable
 import com.mikepenz.fastadapter.ISubItem
 import com.mikepenz.fastadapter.MutableSubItemList
 
-abstract class AbsDelegationExpandableModelItem<M, I, VH>(
+abstract class AbsDelegationExpandableModelItem<M, I>(
     model: M
-) : AbsDelegationModelItem<M, I, VH>(model),
-    IExpandable<VH> where I : AbsDelegationExpandableModelItem<M, I, VH>,
-                          VH : AbsDelegationModelItem.ViewHolder<M, I> {
+) : AbsDelegationModelItem<M, I>(model),
+    IExpandable<AbsDelegationModelItem.ViewHolder<M, I>> where I : AbsDelegationExpandableModelItem<M, I> {
 
     override var isAutoExpanding: Boolean = true
         internal set

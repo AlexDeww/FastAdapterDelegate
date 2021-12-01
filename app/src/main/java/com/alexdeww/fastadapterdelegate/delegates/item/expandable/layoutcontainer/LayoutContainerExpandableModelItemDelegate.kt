@@ -3,7 +3,10 @@ package com.alexdeww.fastadapterdelegate.delegates.item.expandable.layoutcontain
 import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
 import com.alexdeww.fastadapterdelegate.delegates.ModelItemDelegate
+import com.alexdeww.fastadapterdelegate.delegates.item.expandable.AbsDelegationExpandableModelItem
 import com.alexdeww.fastadapterdelegate.delegates.item.expandable.AbsExpandableModelItemDelegate
+import com.alexdeww.fastadapterdelegate.delegates.item.expandable.DefaultExpandableModelItem
+import com.alexdeww.fastadapterdelegate.delegates.item.expandable.defaultExpandableModelItemInterceptor
 import com.alexdeww.fastadapterdelegate.delegates.item.layoutcontainer.LayoutContainerModelItemVHCreator
 import com.alexdeww.fastadapterdelegate.delegates.item.layoutcontainer.LayoutContainerModelItemViewHolder
 
@@ -16,7 +19,7 @@ inline fun <reified M : BM, BM, I> customExpandableModelItemDelegateLayoutContai
     noinline subItemsInitializer: M.() -> List<BM> = { emptyList() },
     noinline itemInitializer: (I.() -> Unit)? = null,
     noinline delegateInitializer: LayoutContainerModelItemViewHolder<M, I>.() -> Unit
-): ModelItemDelegate<BM> where I : AbsLayoutContainerExpandableModelItem<M, I> {
+): ModelItemDelegate<BM> where I : AbsDelegationExpandableModelItem<M, I> {
     return LayoutContainerExpandableModelItemDelegate(
         type = type,
         layoutId = layoutId,
@@ -28,6 +31,25 @@ inline fun <reified M : BM, BM, I> customExpandableModelItemDelegateLayoutContai
         delegateInitializer = delegateInitializer
     )
 }
+
+typealias LayoutContainerDefaultExpandableModelItemVH<M> = LayoutContainerModelItemViewHolder<M, DefaultExpandableModelItem<M>>
+
+inline fun <reified M : BM, BM> expandableModelItemDelegateLayoutContainer(
+    @IdRes type: Int,
+    @LayoutRes layoutId: Int,
+    isAutoExpanding: Boolean = true,
+    noinline subItemsInitializer: M.() -> List<BM> = { emptyList() },
+    noinline itemInitializer: (DefaultExpandableModelItem<M>.() -> Unit)? = null,
+    noinline delegateInitializer: LayoutContainerDefaultExpandableModelItemVH<M>.() -> Unit
+): ModelItemDelegate<BM> = customExpandableModelItemDelegateLayoutContainer(
+    type = type,
+    layoutId = layoutId,
+    isAutoExpanding = isAutoExpanding,
+    itemInterceptor = ::defaultExpandableModelItemInterceptor,
+    subItemsInitializer = subItemsInitializer,
+    itemInitializer = itemInitializer,
+    delegateInitializer = delegateInitializer
+)
 
 @PublishedApi
 internal class LayoutContainerExpandableModelItemDelegate<M : BM, BM, I>(
@@ -47,4 +69,4 @@ internal class LayoutContainerExpandableModelItemDelegate<M : BM, BM, I>(
     subItemsInitializer = subItemsInitializer,
     itemInitializer = itemInitializer,
     delegateInitializer = delegateInitializer
-), LayoutContainerModelItemVHCreator<M, I> where I : AbsLayoutContainerExpandableModelItem<M, I>
+), LayoutContainerModelItemVHCreator<M, I> where I : AbsDelegationExpandableModelItem<M, I>

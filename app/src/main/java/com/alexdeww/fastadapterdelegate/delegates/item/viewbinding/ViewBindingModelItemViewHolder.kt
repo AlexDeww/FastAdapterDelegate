@@ -10,7 +10,7 @@ import com.alexdeww.fastadapterdelegate.delegates.item.common.ModelItemVHCreator
 
 interface ViewBindingModelItemVHCreator<M, I, VB : ViewBinding> :
     ModelItemVHCreator<ViewBindingModelItemViewHolder<M, I, VB>>
-        where I : AbsDelegationModelItem<M, I, ViewBindingModelItemViewHolder<M, I, VB>> {
+        where I : AbsDelegationModelItem<M, I> {
 
     val viewBinding: (layoutInflater: LayoutInflater, parent: ViewGroup) -> VB
 
@@ -22,7 +22,7 @@ interface ViewBindingModelItemVHCreator<M, I, VB : ViewBinding> :
 
 }
 
-class ViewBindingModelItemViewHolder<M, I : AbsDelegationModelItem<M, *, *>, VB : ViewBinding>(
+class ViewBindingModelItemViewHolder<M, I : AbsDelegationModelItem<M, *>, VB : ViewBinding>(
     val binding: VB,
     itemView: View = binding.root
 ) : AbsDelegationModelItem.ViewHolder<M, I>(itemView)

@@ -3,7 +3,10 @@ package com.alexdeww.fastadapterdelegate.delegates.item.layoutcontainer
 import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
 import com.alexdeww.fastadapterdelegate.delegates.ModelItemDelegate
+import com.alexdeww.fastadapterdelegate.delegates.item.common.AbsDelegationModelItem
 import com.alexdeww.fastadapterdelegate.delegates.item.common.AbsModelItemDelegate
+import com.alexdeww.fastadapterdelegate.delegates.item.common.DefaultModelItem
+import com.alexdeww.fastadapterdelegate.delegates.item.common.defaultModelItemInterceptor
 
 /**
  * Создать делегат для кастомного элемента.
@@ -24,7 +27,7 @@ inline fun <reified M : BM, BM, I> customModeItemDelegateLayoutContainer(
     noinline itemInterceptor: (model: M, delegates: List<ModelItemDelegate<BM>>) -> I,
     noinline itemInitializer: (I.() -> Unit)? = null,
     noinline delegateInitializer: LayoutContainerModelItemViewHolder<M, I>.() -> Unit
-): ModelItemDelegate<BM> where I : AbsLayoutContainerModelItem<M, I> {
+): ModelItemDelegate<BM> where I : AbsDelegationModelItem<M, I> {
     return LayoutContainerModelItemDelegate(
         type = type,
         layoutId = layoutId,
@@ -41,7 +44,7 @@ inline fun <reified M, I> customModeItemDelegateLayoutContainerSimple(
     noinline itemInterceptor: (model: M, delegates: List<ModelItemDelegate<M>>) -> I,
     noinline itemInitializer: (I.() -> Unit)? = null,
     noinline delegateInitializer: LayoutContainerModelItemViewHolder<M, I>.() -> Unit
-): ModelItemDelegate<M> where I : AbsLayoutContainerModelItem<M, I> {
+): ModelItemDelegate<M> where I : AbsDelegationModelItem<M, I> {
     return customModeItemDelegateLayoutContainer(
         layoutId = layoutId,
         type = type,
@@ -50,6 +53,33 @@ inline fun <reified M, I> customModeItemDelegateLayoutContainerSimple(
         delegateInitializer = delegateInitializer
     )
 }
+
+typealias LayoutContainerDefaultModelItemVH<M> = LayoutContainerModelItemViewHolder<M, DefaultModelItem<M>>
+
+inline fun <reified M : BM, BM> modeItemDelegateLayoutContainer(
+    @IdRes type: Int,
+    @LayoutRes layoutId: Int,
+    noinline itemInitializer: (DefaultModelItem<M>.() -> Unit)? = null,
+    noinline delegateInitializer: LayoutContainerDefaultModelItemVH<M>.() -> Unit
+): ModelItemDelegate<BM> = customModeItemDelegateLayoutContainer(
+    type = type,
+    layoutId = layoutId,
+    itemInterceptor = ::defaultModelItemInterceptor,
+    itemInitializer = itemInitializer,
+    delegateInitializer = delegateInitializer
+)
+
+inline fun <reified M> modeItemDelegateLayoutContainerSimple(
+    @IdRes type: Int,
+    @LayoutRes layoutId: Int,
+    noinline itemInitializer: (DefaultModelItem<M>.() -> Unit)? = null,
+    noinline delegateInitializer: LayoutContainerDefaultModelItemVH<M>.() -> Unit
+): ModelItemDelegate<M> = modeItemDelegateLayoutContainer(
+    type = type,
+    layoutId = layoutId,
+    itemInitializer = itemInitializer,
+    delegateInitializer = delegateInitializer
+)
 
 @PublishedApi
 internal class LayoutContainerModelItemDelegate<M : BM, BM, I>(
@@ -65,4 +95,4 @@ internal class LayoutContainerModelItemDelegate<M : BM, BM, I>(
     itemInterceptor = itemInterceptor,
     itemInitializer = itemInitializer,
     delegateInitializer = delegateInitializer
-), LayoutContainerModelItemVHCreator<M, I> where I : AbsLayoutContainerModelItem<M, I>
+), LayoutContainerModelItemVHCreator<M, I> where I : AbsDelegationModelItem<M, I>

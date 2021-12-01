@@ -2,9 +2,13 @@ package com.alexdeww.fastadapterdelegate.delegates.item.expandable.viewbinding
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.annotation.IdRes
 import androidx.viewbinding.ViewBinding
 import com.alexdeww.fastadapterdelegate.delegates.ModelItemDelegate
+import com.alexdeww.fastadapterdelegate.delegates.item.expandable.AbsDelegationExpandableModelItem
 import com.alexdeww.fastadapterdelegate.delegates.item.expandable.AbsExpandableModelItemDelegate
+import com.alexdeww.fastadapterdelegate.delegates.item.expandable.DefaultExpandableModelItem
+import com.alexdeww.fastadapterdelegate.delegates.item.expandable.defaultExpandableModelItemInterceptor
 import com.alexdeww.fastadapterdelegate.delegates.item.viewbinding.ViewBindingModelItemVHCreator
 import com.alexdeww.fastadapterdelegate.delegates.item.viewbinding.ViewBindingModelItemViewHolder
 
@@ -17,7 +21,7 @@ inline fun <reified M : BM, BM, I, VB : ViewBinding> customExpandableModelItemDe
     noinline subItemsInitializer: M.() -> List<BM> = { emptyList() },
     noinline itemInitializer: (I.() -> Unit)? = null,
     noinline delegateInitializer: ViewBindingModelItemViewHolder<M, I, VB>.() -> Unit
-): ModelItemDelegate<BM> where I : AbsViewBindingExpandableModelItem<M, I, VB> {
+): ModelItemDelegate<BM> where I : AbsDelegationExpandableModelItem<M, I> {
     return ViewBindingExpandableModelItemDelegate(
         type = type,
         viewBinding = viewBinding,
@@ -29,6 +33,25 @@ inline fun <reified M : BM, BM, I, VB : ViewBinding> customExpandableModelItemDe
         delegateInitializer = delegateInitializer,
     )
 }
+
+typealias ViewBindingDefaultExpandableModelItemVH<M, VB> = ViewBindingModelItemViewHolder<M, DefaultExpandableModelItem<M>, VB>
+
+inline fun <reified M : BM, BM, VB : ViewBinding> expandableModelItemDelegateViewBinding(
+    @IdRes type: Int,
+    noinline viewBinding: (layoutInflater: LayoutInflater, parent: ViewGroup) -> VB,
+    isAutoExpanding: Boolean = true,
+    noinline subItemsInitializer: M.() -> List<BM> = { emptyList() },
+    noinline itemInitializer: (DefaultExpandableModelItem<M>.() -> Unit)? = null,
+    noinline delegateInitializer: ViewBindingDefaultExpandableModelItemVH<M, VB>.() -> Unit
+): ModelItemDelegate<BM> = customExpandableModelItemDelegateViewBinding(
+    type = type,
+    viewBinding = viewBinding,
+    isAutoExpanding = isAutoExpanding,
+    itemInterceptor = ::defaultExpandableModelItemInterceptor,
+    subItemsInitializer = subItemsInitializer,
+    itemInitializer = itemInitializer,
+    delegateInitializer = delegateInitializer
+)
 
 @PublishedApi
 internal class ViewBindingExpandableModelItemDelegate<M : BM, BM, I, VB : ViewBinding>(
@@ -48,4 +71,4 @@ internal class ViewBindingExpandableModelItemDelegate<M : BM, BM, I, VB : ViewBi
     subItemsInitializer = subItemsInitializer,
     itemInitializer = itemInitializer,
     delegateInitializer = delegateInitializer
-), ViewBindingModelItemVHCreator<M, I, VB> where I : AbsViewBindingExpandableModelItem<M, I, VB>
+), ViewBindingModelItemVHCreator<M, I, VB> where I : AbsDelegationExpandableModelItem<M, I>

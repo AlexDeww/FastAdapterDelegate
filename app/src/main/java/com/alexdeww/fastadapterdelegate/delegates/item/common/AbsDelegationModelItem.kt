@@ -11,48 +11,51 @@ import com.mikepenz.fastadapter.items.BaseItem
 typealias BindBlockAction = (payloads: List<Any>) -> Unit
 typealias UnbindBlockAction = () -> Unit
 
-typealias GenericDelegationModelItem<M> = AbsDelegationModelItem<out M, *, out ViewHolder<out M, *>>
+typealias GenericDelegationModelItem<M> = AbsDelegationModelItem<out M, *>
 
-abstract class AbsDelegationModelItem<M, I, VH>(
+abstract class AbsDelegationModelItem<M, I>(
     final override var model: M
-) : BaseItem<VH>(), IModelItem<M, VH>, ISubItem<VH>,
-    IClickable<I> where I : AbsDelegationModelItem<M, I, VH>,
-                        VH : ViewHolder<M, I> {
+) : BaseItem<ViewHolder<M, I>>(), IModelItem<M, ViewHolder<M, I>>, ISubItem<ViewHolder<M, I>>,
+    IClickable<I> where I : AbsDelegationModelItem<M, I> {
 
-    internal lateinit var viewHolderFactory: IItemVHFactory<VH>
+    internal lateinit var viewHolderFactory: IItemVHFactory<out ViewHolder<M, I>>
     final override var type: Int = -1
         internal set
 
     final override var parent: IParentItem<*>? = null
     final override var onItemClickListener: ClickListener<I>? = null
     final override var onPreItemClickListener: ClickListener<I>? = null
-    final override val factory: IItemVHFactory<VH> get() = viewHolderFactory
 
-    final override fun attachToWindow(holder: VH) {
+    @Suppress("UNCHECKED_CAST")
+    final override val factory: IItemVHFactory<ViewHolder<M, I>>
+        get() = viewHolderFactory as IItemVHFactory<ViewHolder<M, I>>
+
+    final override fun attachToWindow(holder: ViewHolder<M, I>) {
         super.attachToWindow(holder)
     }
 
-    final override fun bindView(holder: VH, payloads: List<Any>) {
+    final override fun bindView(holder: ViewHolder<M, I>, payloads: List<Any>) {
         super.bindView(holder, payloads)
         holder._item = this
         holder.bindAction?.invoke(payloads)
     }
 
-    final override fun detachFromWindow(holder: VH) {
+    final override fun detachFromWindow(holder: ViewHolder<M, I>) {
         super.detachFromWindow(holder)
     }
 
-    final override fun failedToRecycle(holder: VH): Boolean {
+    final override fun failedToRecycle(holder: ViewHolder<M, I>): Boolean {
         return super.failedToRecycle(holder)
     }
 
-    final override fun unbindView(holder: VH) {
+    final override fun unbindView(holder: ViewHolder<M, I>) {
         holder.unBindAction?.invoke()
         super.unbindView(holder)
     }
 
-    abstract class ViewHolder<M, I>(itemView: View) : RecyclerView.ViewHolder(itemView)
-            where I : AbsDelegationModelItem<M, *, *> {
+    abstract class ViewHolder<M, I : AbsDelegationModelItem<M, *>>(
+        itemView: View
+    ) : RecyclerView.ViewHolder(itemView) {
 
         private object Uninitialized
 

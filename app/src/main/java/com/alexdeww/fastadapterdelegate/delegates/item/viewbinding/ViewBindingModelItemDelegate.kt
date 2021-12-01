@@ -5,7 +5,10 @@ import android.view.ViewGroup
 import androidx.annotation.IdRes
 import androidx.viewbinding.ViewBinding
 import com.alexdeww.fastadapterdelegate.delegates.ModelItemDelegate
+import com.alexdeww.fastadapterdelegate.delegates.item.common.AbsDelegationModelItem
 import com.alexdeww.fastadapterdelegate.delegates.item.common.AbsModelItemDelegate
+import com.alexdeww.fastadapterdelegate.delegates.item.common.DefaultModelItem
+import com.alexdeww.fastadapterdelegate.delegates.item.common.defaultModelItemInterceptor
 
 /**
  * Создать делегат для кастомного элемента.
@@ -26,7 +29,7 @@ inline fun <reified M : BM, BM, I, VB : ViewBinding> customModeItemDelegateViewB
     noinline itemInterceptor: (model: M, delegates: List<ModelItemDelegate<BM>>) -> I,
     noinline itemInitializer: (I.() -> Unit)? = null,
     noinline delegateInitializer: ViewBindingModelItemViewHolder<M, I, VB>.() -> Unit
-): ModelItemDelegate<BM> where I : AbsViewBindingModelItem<M, I, VB> {
+): ModelItemDelegate<BM> where I : AbsDelegationModelItem<M, I> {
     return ViewBindingModelItemDelegate(
         viewBinding = viewBinding,
         type = type,
@@ -43,7 +46,7 @@ inline fun <reified M, I, VB : ViewBinding> customModeItemDelegateViewBindingSim
     noinline itemInterceptor: (model: M, delegates: List<ModelItemDelegate<M>>) -> I,
     noinline itemInitializer: (I.() -> Unit)? = null,
     noinline delegateInitializer: ViewBindingModelItemViewHolder<M, I, VB>.() -> Unit
-): ModelItemDelegate<M> where I : AbsViewBindingModelItem<M, I, VB> {
+): ModelItemDelegate<M> where I : AbsDelegationModelItem<M, I> {
     return customModeItemDelegateViewBinding(
         viewBinding = viewBinding,
         type = type,
@@ -52,6 +55,33 @@ inline fun <reified M, I, VB : ViewBinding> customModeItemDelegateViewBindingSim
         delegateInitializer = delegateInitializer
     )
 }
+
+typealias ViewBindingDefaultModelItemVH<M, VB> = ViewBindingModelItemViewHolder<M, DefaultModelItem<M>, VB>
+
+inline fun <reified M : BM, BM, VB : ViewBinding> modeItemDelegateViewBinding(
+    @IdRes type: Int,
+    noinline viewBinding: (layoutInflater: LayoutInflater, parent: ViewGroup) -> VB,
+    noinline itemInitializer: (DefaultModelItem<M>.() -> Unit)? = null,
+    noinline delegateInitializer: ViewBindingDefaultModelItemVH<M, VB>.() -> Unit
+): ModelItemDelegate<BM> = customModeItemDelegateViewBinding(
+    viewBinding = viewBinding,
+    type = type,
+    itemInterceptor = ::defaultModelItemInterceptor,
+    itemInitializer = itemInitializer,
+    delegateInitializer = delegateInitializer
+)
+
+inline fun <reified M, VB : ViewBinding> modeItemDelegateViewBindingSimple(
+    @IdRes type: Int,
+    noinline viewBinding: (layoutInflater: LayoutInflater, parent: ViewGroup) -> VB,
+    noinline itemInitializer: (DefaultModelItem<M>.() -> Unit)? = null,
+    noinline delegateInitializer: ViewBindingDefaultModelItemVH<M, VB>.() -> Unit
+): ModelItemDelegate<M> = modeItemDelegateViewBinding(
+    viewBinding = viewBinding,
+    type = type,
+    itemInitializer = itemInitializer,
+    delegateInitializer = delegateInitializer
+)
 
 @PublishedApi
 internal class ViewBindingModelItemDelegate<M : BM, BM, I, VB : ViewBinding>(
@@ -67,4 +97,4 @@ internal class ViewBindingModelItemDelegate<M : BM, BM, I, VB : ViewBinding>(
     itemInterceptor = itemInterceptor,
     itemInitializer = itemInitializer,
     delegateInitializer = delegateInitializer
-), ViewBindingModelItemVHCreator<M, I, VB> where I : AbsViewBindingModelItem<M, I, VB>
+), ViewBindingModelItemVHCreator<M, I, VB> where I : AbsDelegationModelItem<M, I>

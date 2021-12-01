@@ -19,7 +19,7 @@ abstract class AbsExpandableModelItemDelegate<M : BM, BM, I, VH>(
     itemInterceptor = itemInterceptor,
     itemInitializer = itemInitializer,
     delegateInitializer = delegateInitializer
-) where I : AbsDelegationExpandableModelItem<M, I, VH>,
+) where I : AbsDelegationExpandableModelItem<M, I>,
         VH : AbsDelegationModelItem.ViewHolder<M, I> {
 
     @CallSuper
