@@ -16,7 +16,7 @@ import com.alexdeww.fastadapterdelegate.delegates.item.common.defaultModelItemIn
  * @param BM Базовый тип модели
  * @param M Тип модели с базовым типом [BM], за которую отвечает этот делегат
  * @param I Тип элемента для модели [M]
- * @param viewBinding
+ * @param viewBindingProvider
  * @param type уникальный тип для этого элемента
  * @param itemInterceptor Функция которая возвращаеят элемент [I], вызывается когда данные были
  * переданны в адаптер списка
@@ -25,13 +25,13 @@ import com.alexdeww.fastadapterdelegate.delegates.item.common.defaultModelItemIn
  */
 inline fun <reified M : BM, BM, I, VB : ViewBinding> customModeItemDelegateViewBinding(
     @IdRes type: Int,
-    noinline viewBinding: (layoutInflater: LayoutInflater, parent: ViewGroup) -> VB,
+    noinline viewBindingProvider: (layoutInflater: LayoutInflater, parent: ViewGroup) -> VB,
     noinline itemInterceptor: (model: M, delegates: List<ModelItemDelegate<BM>>) -> I,
     noinline itemInitializer: (I.() -> Unit)? = null,
     noinline delegateInitializer: ViewBindingModelItemViewHolder<M, I, VB>.() -> Unit
 ): ModelItemDelegate<BM> where I : AbsDelegationModelItem<M, I> {
     return ViewBindingModelItemDelegate(
-        viewBinding = viewBinding,
+        viewBindingProvider = viewBindingProvider,
         type = type,
         on = { model: BM -> model is M },
         itemInterceptor = itemInterceptor,
@@ -42,13 +42,13 @@ inline fun <reified M : BM, BM, I, VB : ViewBinding> customModeItemDelegateViewB
 
 inline fun <reified M, I, VB : ViewBinding> customModeItemDelegateViewBindingSimple(
     @IdRes type: Int,
-    noinline viewBinding: (layoutInflater: LayoutInflater, parent: ViewGroup) -> VB,
+    noinline viewBindingProvider: (layoutInflater: LayoutInflater, parent: ViewGroup) -> VB,
     noinline itemInterceptor: (model: M, delegates: List<ModelItemDelegate<M>>) -> I,
     noinline itemInitializer: (I.() -> Unit)? = null,
     noinline delegateInitializer: ViewBindingModelItemViewHolder<M, I, VB>.() -> Unit
 ): ModelItemDelegate<M> where I : AbsDelegationModelItem<M, I> {
     return customModeItemDelegateViewBinding(
-        viewBinding = viewBinding,
+        viewBindingProvider = viewBindingProvider,
         type = type,
         itemInterceptor = itemInterceptor,
         itemInitializer = itemInitializer,
@@ -60,11 +60,11 @@ typealias ViewBindingDefaultModelItemVH<M, VB> = ViewBindingModelItemViewHolder<
 
 inline fun <reified M : BM, BM, VB : ViewBinding> modeItemDelegateViewBinding(
     @IdRes type: Int,
-    noinline viewBinding: (layoutInflater: LayoutInflater, parent: ViewGroup) -> VB,
+    noinline viewBindingProvider: (layoutInflater: LayoutInflater, parent: ViewGroup) -> VB,
     noinline itemInitializer: (DefaultModelItem<M>.() -> Unit)? = null,
     noinline delegateInitializer: ViewBindingDefaultModelItemVH<M, VB>.() -> Unit
 ): ModelItemDelegate<BM> = customModeItemDelegateViewBinding(
-    viewBinding = viewBinding,
+    viewBindingProvider = viewBindingProvider,
     type = type,
     itemInterceptor = ::defaultModelItemInterceptor,
     itemInitializer = itemInitializer,
@@ -73,11 +73,11 @@ inline fun <reified M : BM, BM, VB : ViewBinding> modeItemDelegateViewBinding(
 
 inline fun <reified M, VB : ViewBinding> modeItemDelegateViewBindingSimple(
     @IdRes type: Int,
-    noinline viewBinding: (layoutInflater: LayoutInflater, parent: ViewGroup) -> VB,
+    noinline viewBindingProvider: (layoutInflater: LayoutInflater, parent: ViewGroup) -> VB,
     noinline itemInitializer: (DefaultModelItem<M>.() -> Unit)? = null,
     noinline delegateInitializer: ViewBindingDefaultModelItemVH<M, VB>.() -> Unit
 ): ModelItemDelegate<M> = modeItemDelegateViewBinding(
-    viewBinding = viewBinding,
+    viewBindingProvider = viewBindingProvider,
     type = type,
     itemInitializer = itemInitializer,
     delegateInitializer = delegateInitializer
@@ -85,7 +85,7 @@ inline fun <reified M, VB : ViewBinding> modeItemDelegateViewBindingSimple(
 
 @PublishedApi
 internal class ViewBindingModelItemDelegate<M : BM, BM, I, VB : ViewBinding>(
-    override val viewBinding: (layoutInflater: LayoutInflater, parent: ViewGroup) -> VB,
+    override val viewBindingProvider: (layoutInflater: LayoutInflater, parent: ViewGroup) -> VB,
     type: Int,
     on: (model: BM) -> Boolean,
     itemInterceptor: (model: M, delegates: List<ModelItemDelegate<BM>>) -> I,

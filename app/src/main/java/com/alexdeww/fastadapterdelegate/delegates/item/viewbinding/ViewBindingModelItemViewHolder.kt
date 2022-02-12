@@ -12,17 +12,17 @@ interface ViewBindingModelItemVHCreator<M, I, VB : ViewBinding> :
     ModelItemVHCreator<ViewBindingModelItemViewHolder<M, I, VB>>
         where I : AbsDelegationModelItem<M, I> {
 
-    val viewBinding: (layoutInflater: LayoutInflater, parent: ViewGroup) -> VB
+    val viewBindingProvider: (layoutInflater: LayoutInflater, parent: ViewGroup) -> VB
 
     @CallSuper
     override fun createViewHolder(parent: ViewGroup): ViewBindingModelItemViewHolder<M, I, VB> {
-        val binding = viewBinding(LayoutInflater.from(parent.context), parent)
-        return ViewBindingModelItemViewHolder(binding)
+        val viewBinding = viewBindingProvider(LayoutInflater.from(parent.context), parent)
+        return ViewBindingModelItemViewHolder(viewBinding)
     }
 
 }
 
 class ViewBindingModelItemViewHolder<M, I : AbsDelegationModelItem<M, *>, VB : ViewBinding>(
-    val binding: VB,
-    itemView: View = binding.root
+    val viewBinding: VB,
+    itemView: View = viewBinding.root
 ) : AbsDelegationModelItem.ViewHolder<M, I>(itemView)

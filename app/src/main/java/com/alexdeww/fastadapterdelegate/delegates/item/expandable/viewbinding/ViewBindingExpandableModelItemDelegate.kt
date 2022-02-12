@@ -15,7 +15,7 @@ import com.alexdeww.fastadapterdelegate.delegates.item.viewbinding.ViewBindingMo
 @Suppress("LongParameterList")
 inline fun <reified M : BM, BM, I, VB : ViewBinding> customExpandableModelItemDelegateViewBinding(
     type: Int,
-    noinline viewBinding: (layoutInflater: LayoutInflater, parent: ViewGroup) -> VB,
+    noinline viewBindingProvider: (layoutInflater: LayoutInflater, parent: ViewGroup) -> VB,
     isAutoExpanding: Boolean = true,
     noinline itemInterceptor: (model: M, delegates: List<ModelItemDelegate<BM>>) -> I,
     noinline subItemsInitializer: M.() -> List<BM> = { emptyList() },
@@ -24,7 +24,7 @@ inline fun <reified M : BM, BM, I, VB : ViewBinding> customExpandableModelItemDe
 ): ModelItemDelegate<BM> where I : AbsDelegationExpandableModelItem<M, I> {
     return ViewBindingExpandableModelItemDelegate(
         type = type,
-        viewBinding = viewBinding,
+        viewBindingProvider = viewBindingProvider,
         isAutoExpanding = isAutoExpanding,
         on = { model: BM -> model is M },
         itemInterceptor = itemInterceptor,
@@ -38,14 +38,14 @@ typealias ViewBindingDefaultExpandableModelItemVH<M, VB> = ViewBindingModelItemV
 
 inline fun <reified M : BM, BM, VB : ViewBinding> expandableModelItemDelegateViewBinding(
     @IdRes type: Int,
-    noinline viewBinding: (layoutInflater: LayoutInflater, parent: ViewGroup) -> VB,
+    noinline viewBindingProvider: (layoutInflater: LayoutInflater, parent: ViewGroup) -> VB,
     isAutoExpanding: Boolean = true,
     noinline subItemsInitializer: M.() -> List<BM> = { emptyList() },
     noinline itemInitializer: (DefaultExpandableModelItem<M>.() -> Unit)? = null,
     noinline delegateInitializer: ViewBindingDefaultExpandableModelItemVH<M, VB>.() -> Unit
 ): ModelItemDelegate<BM> = customExpandableModelItemDelegateViewBinding(
     type = type,
-    viewBinding = viewBinding,
+    viewBindingProvider = viewBindingProvider,
     isAutoExpanding = isAutoExpanding,
     itemInterceptor = ::defaultExpandableModelItemInterceptor,
     subItemsInitializer = subItemsInitializer,
@@ -56,7 +56,7 @@ inline fun <reified M : BM, BM, VB : ViewBinding> expandableModelItemDelegateVie
 @PublishedApi
 internal class ViewBindingExpandableModelItemDelegate<M : BM, BM, I, VB : ViewBinding>(
     type: Int,
-    override val viewBinding: (layoutInflater: LayoutInflater, parent: ViewGroup) -> VB,
+    override val viewBindingProvider: (layoutInflater: LayoutInflater, parent: ViewGroup) -> VB,
     isAutoExpanding: Boolean = true,
     on: (model: BM) -> Boolean,
     itemInterceptor: (model: M, delegates: List<ModelItemDelegate<BM>>) -> I,

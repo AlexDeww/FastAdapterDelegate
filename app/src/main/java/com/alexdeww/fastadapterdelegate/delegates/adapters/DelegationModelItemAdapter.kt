@@ -7,11 +7,10 @@ import com.mikepenz.fastadapter.adapters.ModelAdapter
 /**
  * Адаптер.
  *
- * @param Model тип элементов которые может хранить этот адаптер
  * @param BaseModel тип элементов которые может отображать этот адаптер
  * @param delegates список делегатов
  */
-open class DelegationModelItemAdapter<Model : BaseModel, BaseModel>(
+open class DelegationModelItemAdapter<BaseModel : Any>(
     protected val delegates: List<ModelItemDelegate<BaseModel>>
 ) : ModelAdapter<BaseModel, GenericDelegationModelItem<BaseModel>>(
     { model -> delegates.find { it.isForViewType(model) }?.intercept(model, delegates) }
@@ -20,20 +19,9 @@ open class DelegationModelItemAdapter<Model : BaseModel, BaseModel>(
 /**
  * Адаптер.
  *
- * @param Model тип элементов которые может хранить этот адаптер
  * @param BaseModel тип элементов которые может отображать этот адаптер
  * @param delegates список делегатов
  */
-fun <Model : BaseModel, BaseModel> delegationModelItemAdapter(
+fun <BaseModel : Any> delegationModelItemAdapter(
     vararg delegates: ModelItemDelegate<BaseModel>
-) = DelegationModelItemAdapter<Model, BaseModel>(delegates.asList())
-
-/**
- * Адаптер.
- *
- * @param Model тип элементов которые может хранить этот адаптер
- * @param delegates список делегатов
- */
-fun <Model> delegationModelItemAdapterSimple(
-    vararg delegates: ModelItemDelegate<Model>
-) = delegationModelItemAdapter(*delegates)
+) = DelegationModelItemAdapter(delegates.asList())
