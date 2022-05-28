@@ -30,7 +30,7 @@ open class AsyncDiffModelAdapter<Model : Any, Item : IModelItem<out Model, out R
     }
     private val itemsDiffCallback = ModelItemDiffCallbackWrapper(asyncDifferConfig.diffCallback)
 
-    fun submitList(newList: List<Model>) {
+    fun submitList(newList: List<Model>, commitCallback: (() -> Unit)? = null) {
         val runId = ++globalRunId
         val newItemsList = intercept(newList)
         val oldItemsList = FastAdapterDiffUtil.prepare(this, newItemsList)
@@ -38,14 +38,19 @@ open class AsyncDiffModelAdapter<Model : Any, Item : IModelItem<out Model, out R
         asyncDifferConfig.backgroundThreadExecutor.execute {
             val diffResult = DiffUtil.calculateDiff(diffCb, true)
             mainThreadExecutor.execute {
-                if (globalRunId == runId) applyListChanges(newItemsList, diffResult)
+                if (globalRunId == runId) applyListChanges(newItemsList, diffResult, commitCallback)
             }
         }
     }
 
-    private fun applyListChanges(newItemsList: List<Item>, diffResult: DiffUtil.DiffResult) {
+    private fun applyListChanges(
+        newItemsList: List<Item>,
+        diffResult: DiffUtil.DiffResult,
+        commitCallback: (() -> Unit)?
+    ) {
         FastAdapterDiffUtil.postCalculate(this, newItemsList)
         diffResult.dispatchUpdatesTo(FastAdapterListUpdateCallback(this))
+        commitCallback?.invoke()
     }
 
     private class DefaultMainThreadExecutor : Executor {
