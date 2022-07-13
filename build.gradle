@@ -6,7 +6,7 @@ buildscript {
         min_sdk_version = 17
         sdk_version = 31
 
-        kotlin_version = '1.6.0'
+        kotlin_version = '1.7.10'
         fastadapter = '5.5.1'
     }
 

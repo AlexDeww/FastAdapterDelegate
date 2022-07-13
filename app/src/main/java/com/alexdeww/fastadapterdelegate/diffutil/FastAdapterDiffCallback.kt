@@ -19,4 +19,7 @@ open class FastAdapterDiffCallback<I : GenericItem>(
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean = callback
         .areContentsTheSame(oldItems[oldItemPosition], newItems[newItemPosition])
 
+    override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? = callback
+        .getChangePayload(oldItems[oldItemPosition], newItems[newItemPosition])
+
 }
