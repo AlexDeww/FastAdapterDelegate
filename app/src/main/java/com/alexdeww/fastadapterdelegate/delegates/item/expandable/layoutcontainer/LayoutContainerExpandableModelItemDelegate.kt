@@ -17,6 +17,7 @@ inline fun <reified M : BM, BM, I> customExpandableModelItemDelegateLayoutContai
     isAutoExpanding: Boolean = true,
     noinline itemInterceptor: (model: M, delegates: List<ModelItemDelegate<BM>>) -> I,
     noinline subItemsInitializer: M.() -> List<BM> = { emptyList() },
+    noinline on: (model: BM) -> Boolean = { model: BM -> model is M },
     noinline itemInitializer: (I.() -> Unit)? = null,
     noinline delegateInitializer: LayoutContainerModelItemViewHolder<M, I>.() -> Unit
 ): ModelItemDelegate<BM> where I : AbsDelegationExpandableModelItem<M, I> {
@@ -24,7 +25,7 @@ inline fun <reified M : BM, BM, I> customExpandableModelItemDelegateLayoutContai
         type = type,
         layoutId = layoutId,
         isAutoExpanding = isAutoExpanding,
-        on = { model: BM -> model is M },
+        on = on,
         itemInterceptor = itemInterceptor,
         subItemsInitializer = subItemsInitializer,
         itemInitializer = itemInitializer,
@@ -32,13 +33,16 @@ inline fun <reified M : BM, BM, I> customExpandableModelItemDelegateLayoutContai
     )
 }
 
-typealias LayoutContainerDefaultExpandableModelItemVH<M> = LayoutContainerModelItemViewHolder<M, DefaultExpandableModelItem<M>>
+typealias LayoutContainerDefaultExpandableModelItemVH<M> =
+        LayoutContainerModelItemViewHolder<M, DefaultExpandableModelItem<M>>
 
+@Suppress("LongParameterList")
 inline fun <reified M : BM, BM> expandableModelItemDelegateLayoutContainer(
     @IdRes type: Int,
     @LayoutRes layoutId: Int,
     isAutoExpanding: Boolean = true,
     noinline subItemsInitializer: M.() -> List<BM> = { emptyList() },
+    noinline on: (model: BM) -> Boolean = { model: BM -> model is M },
     noinline itemInitializer: (DefaultExpandableModelItem<M>.() -> Unit)? = null,
     noinline delegateInitializer: LayoutContainerDefaultExpandableModelItemVH<M>.() -> Unit
 ): ModelItemDelegate<BM> = customExpandableModelItemDelegateLayoutContainer(
@@ -47,10 +51,12 @@ inline fun <reified M : BM, BM> expandableModelItemDelegateLayoutContainer(
     isAutoExpanding = isAutoExpanding,
     itemInterceptor = ::defaultExpandableModelItemInterceptor,
     subItemsInitializer = subItemsInitializer,
+    on = on,
     itemInitializer = itemInitializer,
     delegateInitializer = delegateInitializer
 )
 
+@Suppress("LongParameterList")
 @PublishedApi
 internal class LayoutContainerExpandableModelItemDelegate<M : BM, BM, I>(
     type: Int,

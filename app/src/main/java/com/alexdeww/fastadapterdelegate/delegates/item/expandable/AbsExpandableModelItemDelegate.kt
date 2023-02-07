@@ -5,6 +5,7 @@ import com.alexdeww.fastadapterdelegate.delegates.ModelItemDelegate
 import com.alexdeww.fastadapterdelegate.delegates.item.common.AbsDelegationModelItem
 import com.alexdeww.fastadapterdelegate.delegates.item.common.AbsModelItemDelegate
 
+@Suppress("LongParameterList")
 abstract class AbsExpandableModelItemDelegate<M : BM, BM, I, VH>(
     type: Int,
     private val isAutoExpanding: Boolean = true,

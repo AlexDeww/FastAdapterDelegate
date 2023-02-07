@@ -6,8 +6,6 @@ import com.alexdeww.fastadapterdelegate.delegates.item.common.AbsDelegationModel
 import com.mikepenz.fastadapter.IItemVHFactory
 
 /**
- * Базовый делегат, для всех текущих и будущих делегатов.
- *
  * @param BM Базовый тип модели, которую может хранить элемент
  * @param M Тип модели с базовым типом [BM], за которую отвечает этот делегат
  * @param I Тип элемента для модели [M]

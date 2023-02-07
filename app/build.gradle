@@ -1,7 +1,6 @@
 plugins {
     id 'com.android.library'
     id 'kotlin-android'
-    id 'kotlin-android-extensions'
     id 'maven-publish'
 }
 
@@ -19,9 +18,6 @@ android {
 
     buildFeatures {
         viewBinding true
-    }
-    androidExtensions {
-        experimental = true
     }
 
     buildTypes {
@@ -52,7 +48,7 @@ afterEvaluate {
             release(MavenPublication) {
                 from components.release
                 groupId = 'com.alexdeww.fastadapterdelegate'
-                version = '2.0.6'
+                version = '2.0.7'
             }
         }
     }

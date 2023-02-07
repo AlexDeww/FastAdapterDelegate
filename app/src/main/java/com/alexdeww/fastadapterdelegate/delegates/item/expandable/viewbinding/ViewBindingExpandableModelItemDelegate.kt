@@ -19,6 +19,7 @@ inline fun <reified M : BM, BM, I, VB : ViewBinding> customExpandableModelItemDe
     isAutoExpanding: Boolean = true,
     noinline itemInterceptor: (model: M, delegates: List<ModelItemDelegate<BM>>) -> I,
     noinline subItemsInitializer: M.() -> List<BM> = { emptyList() },
+    noinline on: (model: BM) -> Boolean = { model: BM -> model is M },
     noinline itemInitializer: (I.() -> Unit)? = null,
     noinline delegateInitializer: ViewBindingModelItemViewHolder<M, I, VB>.() -> Unit
 ): ModelItemDelegate<BM> where I : AbsDelegationExpandableModelItem<M, I> {
@@ -26,7 +27,7 @@ inline fun <reified M : BM, BM, I, VB : ViewBinding> customExpandableModelItemDe
         type = type,
         viewBindingProvider = viewBindingProvider,
         isAutoExpanding = isAutoExpanding,
-        on = { model: BM -> model is M },
+        on = on,
         itemInterceptor = itemInterceptor,
         subItemsInitializer = subItemsInitializer,
         itemInitializer = itemInitializer,
@@ -34,13 +35,16 @@ inline fun <reified M : BM, BM, I, VB : ViewBinding> customExpandableModelItemDe
     )
 }
 
-typealias ViewBindingDefaultExpandableModelItemVH<M, VB> = ViewBindingModelItemViewHolder<M, DefaultExpandableModelItem<M>, VB>
+typealias ViewBindingDefaultExpandableModelItemVH<M, VB> =
+        ViewBindingModelItemViewHolder<M, DefaultExpandableModelItem<M>, VB>
 
+@Suppress("LongParameterList")
 inline fun <reified M : BM, BM, VB : ViewBinding> expandableModelItemDelegateViewBinding(
     @IdRes type: Int,
     noinline viewBindingProvider: (layoutInflater: LayoutInflater, parent: ViewGroup) -> VB,
     isAutoExpanding: Boolean = true,
     noinline subItemsInitializer: M.() -> List<BM> = { emptyList() },
+    noinline on: (model: BM) -> Boolean = { model: BM -> model is M },
     noinline itemInitializer: (DefaultExpandableModelItem<M>.() -> Unit)? = null,
     noinline delegateInitializer: ViewBindingDefaultExpandableModelItemVH<M, VB>.() -> Unit
 ): ModelItemDelegate<BM> = customExpandableModelItemDelegateViewBinding(
@@ -49,10 +53,12 @@ inline fun <reified M : BM, BM, VB : ViewBinding> expandableModelItemDelegateVie
     isAutoExpanding = isAutoExpanding,
     itemInterceptor = ::defaultExpandableModelItemInterceptor,
     subItemsInitializer = subItemsInitializer,
+    on = on,
     itemInitializer = itemInitializer,
     delegateInitializer = delegateInitializer
 )
 
+@Suppress("LongParameterList")
 @PublishedApi
 internal class ViewBindingExpandableModelItemDelegate<M : BM, BM, I, VB : ViewBinding>(
     type: Int,

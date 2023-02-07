@@ -21,27 +21,31 @@ import com.alexdeww.fastadapterdelegate.delegates.item.common.defaultModelItemIn
  * @param itemInitializer Инициализация итема, вызывается сразу после [itemInterceptor]
  * @param delegateInitializer Блок инициализации, в нем задаются методы bind/unbind
  */
+@Suppress("LongParameterList")
 inline fun <reified M : BM, BM, I> customModeItemDelegateLayoutContainer(
     @IdRes type: Int,
     @LayoutRes layoutId: Int,
     noinline itemInterceptor: (model: M, delegates: List<ModelItemDelegate<BM>>) -> I,
+    noinline on: (model: BM) -> Boolean = { model: BM -> model is M },
     noinline itemInitializer: (I.() -> Unit)? = null,
     noinline delegateInitializer: LayoutContainerModelItemViewHolder<M, I>.() -> Unit
 ): ModelItemDelegate<BM> where I : AbsDelegationModelItem<M, I> {
     return LayoutContainerModelItemDelegate(
         type = type,
         layoutId = layoutId,
-        on = { model: BM -> model is M },
+        on = on,
         itemInterceptor = itemInterceptor,
         itemInitializer = itemInitializer,
         delegateInitializer = delegateInitializer
     )
 }
 
+@Suppress("LongParameterList")
 inline fun <reified M, I> customModeItemDelegateLayoutContainerSimple(
     @IdRes type: Int,
     @LayoutRes layoutId: Int,
     noinline itemInterceptor: (model: M, delegates: List<ModelItemDelegate<M>>) -> I,
+    noinline on: (model: M) -> Boolean = { true },
     noinline itemInitializer: (I.() -> Unit)? = null,
     noinline delegateInitializer: LayoutContainerModelItemViewHolder<M, I>.() -> Unit
 ): ModelItemDelegate<M> where I : AbsDelegationModelItem<M, I> {
@@ -49,6 +53,7 @@ inline fun <reified M, I> customModeItemDelegateLayoutContainerSimple(
         layoutId = layoutId,
         type = type,
         itemInterceptor = itemInterceptor,
+        on = on,
         itemInitializer = itemInitializer,
         delegateInitializer = delegateInitializer
     )
@@ -59,12 +64,14 @@ typealias LayoutContainerDefaultModelItemVH<M> = LayoutContainerModelItemViewHol
 inline fun <reified M : BM, BM> modeItemDelegateLayoutContainer(
     @IdRes type: Int,
     @LayoutRes layoutId: Int,
+    noinline on: (model: BM) -> Boolean = { model: BM -> model is M },
     noinline itemInitializer: (DefaultModelItem<M>.() -> Unit)? = null,
     noinline delegateInitializer: LayoutContainerDefaultModelItemVH<M>.() -> Unit
 ): ModelItemDelegate<BM> = customModeItemDelegateLayoutContainer(
     type = type,
     layoutId = layoutId,
     itemInterceptor = ::defaultModelItemInterceptor,
+    on = on,
     itemInitializer = itemInitializer,
     delegateInitializer = delegateInitializer
 )
@@ -72,11 +79,13 @@ inline fun <reified M : BM, BM> modeItemDelegateLayoutContainer(
 inline fun <reified M> modeItemDelegateLayoutContainerSimple(
     @IdRes type: Int,
     @LayoutRes layoutId: Int,
+    noinline on: (model: M) -> Boolean = { true },
     noinline itemInitializer: (DefaultModelItem<M>.() -> Unit)? = null,
     noinline delegateInitializer: LayoutContainerDefaultModelItemVH<M>.() -> Unit
 ): ModelItemDelegate<M> = modeItemDelegateLayoutContainer(
     type = type,
     layoutId = layoutId,
+    on = on,
     itemInitializer = itemInitializer,
     delegateInitializer = delegateInitializer
 )

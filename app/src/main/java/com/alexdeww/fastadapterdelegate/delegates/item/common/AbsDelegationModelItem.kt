@@ -31,7 +31,7 @@ abstract class AbsDelegationModelItem<M, I>(
         get() = viewHolderFactory as IItemVHFactory<ViewHolder<M, I>>
 
     final override fun attachToWindow(holder: ViewHolder<M, I>) {
-        super.attachToWindow(holder)
+        holder.attachToWindowAction?.invoke()
     }
 
     final override fun bindView(holder: ViewHolder<M, I>, payloads: List<Any>) {
@@ -41,7 +41,7 @@ abstract class AbsDelegationModelItem<M, I>(
     }
 
     final override fun detachFromWindow(holder: ViewHolder<M, I>) {
-        super.detachFromWindow(holder)
+        holder.detachFromWindowAction?.invoke()
     }
 
     final override fun failedToRecycle(holder: ViewHolder<M, I>): Boolean {
@@ -64,6 +64,10 @@ abstract class AbsDelegationModelItem<M, I>(
             private set
         internal var unBindAction: UnbindBlockAction? = null
             private set
+        internal var attachToWindowAction: (() -> Unit)? = null
+            private set
+        internal var detachFromWindowAction: (() -> Unit)? = null
+            private set
 
         @Suppress("UNCHECKED_CAST")
         val item: I
@@ -83,6 +87,16 @@ abstract class AbsDelegationModelItem<M, I>(
         fun unbind(block: () -> Unit) {
             check(unBindAction == null) { "unbind { ... } is already defined." }
             unBindAction = block
+        }
+
+        fun onViewAttachedToWindow(block: () -> Unit) {
+            check(attachToWindowAction == null) { "onViewAttachedToWindow { ... } is already defined." }
+            attachToWindowAction = block
+        }
+
+        fun onViewDetachedFromWindow(block: () -> Unit) {
+            check(detachFromWindowAction == null) { "onViewDetachedFromWindow { ... } is already defined." }
+            detachFromWindowAction = block
         }
 
     }

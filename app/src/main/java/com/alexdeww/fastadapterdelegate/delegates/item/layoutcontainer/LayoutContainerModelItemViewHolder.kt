@@ -7,9 +7,6 @@ import androidx.annotation.CallSuper
 import androidx.annotation.IdRes
 import com.alexdeww.fastadapterdelegate.delegates.item.common.AbsDelegationModelItem
 import com.alexdeww.fastadapterdelegate.delegates.item.common.ModelItemVHCreator
-import kotlinx.android.extensions.CacheImplementation
-import kotlinx.android.extensions.ContainerOptions
-import kotlinx.android.extensions.LayoutContainer
 
 interface LayoutContainerModelItemVHCreator<M, I> :
     ModelItemVHCreator<LayoutContainerModelItemViewHolder<M, I>>
@@ -25,11 +22,10 @@ interface LayoutContainerModelItemVHCreator<M, I> :
 
 }
 
-@ContainerOptions(cache = CacheImplementation.SPARSE_ARRAY)
 class LayoutContainerModelItemViewHolder<M, I : AbsDelegationModelItem<M, *>>(
-    override val containerView: View
-) : AbsDelegationModelItem.ViewHolder<M, I>(containerView), LayoutContainer {
+    itemView: View
+) : AbsDelegationModelItem.ViewHolder<M, I>(itemView) {
 
-    fun <V : View> findViewById(@IdRes id: Int): V = containerView.findViewById(id) as V
+    fun <V : View> findViewById(@IdRes id: Int): V = itemView.findViewById(id) as V
 
 }

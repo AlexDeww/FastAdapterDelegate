@@ -23,27 +23,31 @@ import com.alexdeww.fastadapterdelegate.delegates.item.common.defaultModelItemIn
  * @param itemInitializer Инициализация итема, вызывается сразу после [itemInterceptor]
  * @param delegateInitializer Блок инициализации, в нем задаются методы bind/unbind
  */
+@Suppress("LongParameterList")
 inline fun <reified M : BM, BM, I, VB : ViewBinding> customModeItemDelegateViewBinding(
     @IdRes type: Int,
     noinline viewBindingProvider: (layoutInflater: LayoutInflater, parent: ViewGroup) -> VB,
     noinline itemInterceptor: (model: M, delegates: List<ModelItemDelegate<BM>>) -> I,
+    noinline on: (model: BM) -> Boolean = { model: BM -> model is M },
     noinline itemInitializer: (I.() -> Unit)? = null,
     noinline delegateInitializer: ViewBindingModelItemViewHolder<M, I, VB>.() -> Unit
 ): ModelItemDelegate<BM> where I : AbsDelegationModelItem<M, I> {
     return ViewBindingModelItemDelegate(
         viewBindingProvider = viewBindingProvider,
         type = type,
-        on = { model: BM -> model is M },
+        on = on,
         itemInterceptor = itemInterceptor,
         itemInitializer = itemInitializer,
         delegateInitializer = delegateInitializer
     )
 }
 
+@Suppress("LongParameterList")
 inline fun <reified M, I, VB : ViewBinding> customModeItemDelegateViewBindingSimple(
     @IdRes type: Int,
     noinline viewBindingProvider: (layoutInflater: LayoutInflater, parent: ViewGroup) -> VB,
     noinline itemInterceptor: (model: M, delegates: List<ModelItemDelegate<M>>) -> I,
+    noinline on: (model: M) -> Boolean = { true },
     noinline itemInitializer: (I.() -> Unit)? = null,
     noinline delegateInitializer: ViewBindingModelItemViewHolder<M, I, VB>.() -> Unit
 ): ModelItemDelegate<M> where I : AbsDelegationModelItem<M, I> {
@@ -51,6 +55,7 @@ inline fun <reified M, I, VB : ViewBinding> customModeItemDelegateViewBindingSim
         viewBindingProvider = viewBindingProvider,
         type = type,
         itemInterceptor = itemInterceptor,
+        on = on,
         itemInitializer = itemInitializer,
         delegateInitializer = delegateInitializer
     )
@@ -61,12 +66,14 @@ typealias ViewBindingDefaultModelItemVH<M, VB> = ViewBindingModelItemViewHolder<
 inline fun <reified M : BM, BM, VB : ViewBinding> modeItemDelegateViewBinding(
     @IdRes type: Int,
     noinline viewBindingProvider: (layoutInflater: LayoutInflater, parent: ViewGroup) -> VB,
+    noinline on: (model: BM) -> Boolean = { model: BM -> model is M },
     noinline itemInitializer: (DefaultModelItem<M>.() -> Unit)? = null,
     noinline delegateInitializer: ViewBindingDefaultModelItemVH<M, VB>.() -> Unit
 ): ModelItemDelegate<BM> = customModeItemDelegateViewBinding(
     viewBindingProvider = viewBindingProvider,
     type = type,
     itemInterceptor = ::defaultModelItemInterceptor,
+    on = on,
     itemInitializer = itemInitializer,
     delegateInitializer = delegateInitializer
 )
@@ -74,11 +81,13 @@ inline fun <reified M : BM, BM, VB : ViewBinding> modeItemDelegateViewBinding(
 inline fun <reified M, VB : ViewBinding> modeItemDelegateViewBindingSimple(
     @IdRes type: Int,
     noinline viewBindingProvider: (layoutInflater: LayoutInflater, parent: ViewGroup) -> VB,
+    noinline on: (model: M) -> Boolean = { true },
     noinline itemInitializer: (DefaultModelItem<M>.() -> Unit)? = null,
     noinline delegateInitializer: ViewBindingDefaultModelItemVH<M, VB>.() -> Unit
 ): ModelItemDelegate<M> = modeItemDelegateViewBinding(
     viewBindingProvider = viewBindingProvider,
     type = type,
+    on = on,
     itemInitializer = itemInitializer,
     delegateInitializer = delegateInitializer
 )
